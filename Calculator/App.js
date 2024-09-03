@@ -1,10 +1,22 @@
-import { useState } from 'react';
-import { StyleSheet, Text, View, TextInput, Button, Alert } from 'react-native';
+import { useEffect, useState } from 'react';
+import { StyleSheet, Text, View, TextInput, Button, Alert, FlatList } from 'react-native';
 
 export default function App() {
   const [value1, setValue1] = useState('');
   const [value2, setValue2] = useState('');
   const [result, setResult] = useState(0);
+  const [history, setHistory] = useState([]);
+  const [operator, setOperator] = useState(null);
+
+
+  useEffect(() => {
+    if (operator !== null) {
+      setHistory([`${value1} ${operator} ${value2} = ${result.toFixed(2)}`, ...history])
+      setOperator(null);
+      setValue1('');
+      setValue2('');
+    }
+  }, [result])
 
   const calculate = (operator) => {
 
@@ -12,10 +24,14 @@ export default function App() {
       Alert.alert('Invalid input', 'Please enter a Number');
     } else {
 
-      if (operator === '+')
+      setOperator(operator)
+
+      if (operator === '+') {
         setResult(parseFloat(value1) + parseFloat(value2));
-      else if (operator === '-')
+      }
+      else if (operator === '-') {
         setResult(parseFloat(value1) - parseFloat(value2));
+      }
     }
   };
 
@@ -43,6 +59,14 @@ export default function App() {
           title='-'
           onPress={() => calculate('-')} />
       </View>
+      <View style={styles.list}>
+        <Text>History:</Text>
+        <FlatList
+          data={history}
+          renderItem={({ item }) => <View style={{ alignItems: 'center' }}>
+            <Text>{item}</Text>
+          </View>} />
+      </View>
     </View>
   );
 }
@@ -68,5 +92,9 @@ const styles = StyleSheet.create({
     padding: 10,
     width: 100,
     justifyContent: 'space-around',
-  }
+  },
+  list: {
+    flex: 9,
+    alignItems: 'center',
+  },
 });
